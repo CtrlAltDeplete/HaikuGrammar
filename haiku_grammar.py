@@ -53,6 +53,49 @@ class GrammarModel:
         self.global_tags = (FIRST, SECOND, THIRD, SINGULAR, PLURAL)
         self.current_global_tags = []
 
+    # @classmethod
+    # def dictionary_from_source(cls, filename):
+    #     with open(filename) as f:
+    #         data = f.read()
+    #     for ch in '",.?!':
+    #         data = data.replace(ch, '')
+    #     data = ' '.join(data.split())
+    #     tokenized = list(set(word_tokenize(data)))
+    #     tagged = pos_tag(tokenized)
+    #     print(tagged)
+    #     vocabulary = {}
+    #     for syl in range(1, 8):
+    #         vocabulary[syl] = {}
+    #     for tagged_word in tagged:
+    #         word, tags = tagged_word
+    #         syllable_count = syllablesInWord(word)
+    #         if tags in ['DT', 'PRP$', 'WDT']:
+    #             tags = (DETERMINER,)
+    #         elif tags in ['IN']:
+    #             tags = (PREPOSITION,)
+    #         elif tags in ['JJ', 'JJR', 'JJS']:
+    #             tags = (ADJECTIVE,)
+    #         elif tags in ['NN', 'NNP']:
+    #             tags = (NOUN, SINGULAR)
+    #         elif tags in ['NNS', 'NNPS']:
+    #             tags = (NOUN, PLURAL)
+    #         elif tags in ['RB', 'RBR', 'RBS']:
+    #             tags = (ADVERB,)
+    #         elif tags in ['VB', 'VBD']:
+    #             tags = (VERB,)
+    #         elif tags in ['VBG']:
+    #             tags = (GERUND,)
+    #         elif tags in ['VBP']:
+    #             tags = (VERB, SINGULAR)
+    #         elif tags in ['VBZ']:
+    #             tags = (VERB, THIRD, SINGULAR)
+    #         else:
+    #             pass
+    #         if tags not in vocabulary[syllable_count]:
+    #             vocabulary[syllable_count][tags] = []
+    #         vocabulary[syllable_count][tags].append(word)
+    #     return cls(vocabulary)
+
     def add_word(self, word: str, syllables: int, tags: list):
         """
         Adds a word with the syllable count and tags passed to the current vocabulary.
@@ -94,7 +137,8 @@ class GrammarModel:
 
         Raises
         ------
-
+        ExhaustedVocabulary
+            If there are no words in the vocabulary matching the criteria, this error is raised
         """
 
         tags.extend(self.current_global_tags)
@@ -129,17 +173,14 @@ class GrammarModel:
 
         options = [ADVERB, PREP_PHRASE]
         used = [(tags, word)]
-        while remaining_syllables > 1:
-            # Cannot have a prepositional phrase with fewer than 2 syllables
-            if remaining_syllables < 2 and PREP_PHRASE in options:
-                options.remove(PREP_PHRASE)
+        while remaining_syllables > 0:
             # addition is the type of word/phrase to add to our verb phrase
             addition = choice(options)
             if addition is PREP_PHRASE:
                 syllables_used, word = self.create_prep_phrase(remaining_syllables)
                 options.remove(PREP_PHRASE)
             elif addition is ADVERB:
-                syllables_used, word = self.pick_word(1, remaining_syllables, [ADVERB])
+                syllables_used, word = self.pick_word(1 if remaining_syllables > 2 else 2, max(remaining_syllables - 1, 2), [ADVERB])
                 options.remove(ADVERB)
             if word:
                 used.append((addition, word))
@@ -148,18 +189,6 @@ class GrammarModel:
                 raise ExhaustedVocabulary(
                     "In the creation of a VERB PHRASE, the GRAMMAR ran out of options."
                 )
-        # No options for adverbial phrases are one word, so a random word/phrase is replaced
-        while remaining_syllables == 1:
-            syl, word_to_replace = choice(used)
-            goal_syl = syl + 1
-            counter = 0
-            while syl != goal_syl and counter < 50:
-                syllables_used, word = self.pick_word(goal_syl, goal_syl, [word_to_replace[0]])
-                counter += 1
-            if counter != 50:
-                remaining_syllables -= 1
-                used.remove(word_to_replace)
-                used.append((word, word_to_replace[0]))
         phrase = []
         for pos in choice(([(ADVERB,), (VERB, GERUND), (PREP_PHRASE,)], [(VERB, GERUND), (ADVERB,), (PREP_PHRASE,)],
                            [(VERB, GERUND), (PREP_PHRASE,), (ADVERB,)])):
@@ -322,5 +351,5 @@ if __name__ == '__main__':
 
     grammar = GrammarModel(new_vocabulary)
     print(grammar.create_noun_phrase(5))
-    print(grammar.create_prep_phrase(5))
+    print(grammar.create_prep_phrase(7))
     print(grammar.create_verb_phrase(5))
