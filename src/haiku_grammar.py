@@ -1,4 +1,4 @@
-from constants import *
+from src.constants import *
 from random import randint, choice
 
 
@@ -11,7 +11,6 @@ class GrammarModel:
     A class to hold all the necessary elements of a grammar and vocabulary for generating a Haiku.
 
     ...
-
     Attributes
     ----------
     vocabulary : dict
@@ -50,7 +49,8 @@ class GrammarModel:
         self.vocabulary = vocabulary
         if vocabulary is None:
             self.vocabulary = {}
-        self.global_tags = (FIRST, SECOND, THIRD, SINGULAR, PLURAL)
+        self.global_tags = (PAST, PRESENT, PERFECT, PROGRESSIVE, CONDITIONAL, SUBJUNCTIVE, PASSIVE, ACTIVE,
+                            FIRST_PERSON, SECOND_PERSON, THIRD_PERSON, SINGULAR, PLURAL)
         self.current_global_tags = []
 
     # @classmethod
@@ -255,7 +255,7 @@ class GrammarModel:
 
 if __name__ == '__main__':
     vocabulary = {
-        (NOUN, THIRD): {
+        (NOUN, SINGULAR): {
             1: ['life', 'love', 'world', 'day', 'heart', 'plant'],
             2: ['salmon', 'island', 'student', 'mother', 'water', 'music', 'squirrel'],
             3: ['chocolate', 'banana', 'piano', 'animal'],
@@ -264,8 +264,8 @@ if __name__ == '__main__':
             6: [],
             7: []
         },
-        (NOUN, FIRST): {
-            1: ['days', 'hearts', 'plants', 'I', 'fish', 'deer', 'ants'],
+        (NOUN, PLURAL): {
+            1: ['days', 'hearts', 'plants', 'fish', 'deer', 'ants'],
             2: ['pumpkins', 'pictures', 'flowers'],
             3: ['elephants', 'adventures'],
             4: ['caterpillars', 'alligators', 'watermelons'],
@@ -291,7 +291,7 @@ if __name__ == '__main__':
             6: [],
             7: []
         },
-        (VERB, THIRD): {
+        (VERB, SINGULAR, PRESENT): {
             1: ['bolts', 'craves', 'soars', 'lurks', 'flies', 'wails'],
             2: ['absorbs', 'cowers', 'glistens', 'rises', 'trudges'],
             3: ['advises', 'untangles'],
@@ -300,7 +300,7 @@ if __name__ == '__main__':
             6: [],
             7: []
         },
-        (VERB, FIRST): {
+        (VERB, PLURAL, PRESENT): {
             1: ['bust', 'climb', 'gleam', 'fight', 'stretch'],
             2: ['advance', 'attack', 'retreat', 'struggle', 'survey'],
             3: [],
