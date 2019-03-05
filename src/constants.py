@@ -32,3 +32,6 @@ THIRD_PERSON = 'THIRD_PERSON'
 # Singular/Plural
 SINGULAR = 'SINGULAR'
 PLURAL = 'PLURAL'
+
+# Path to Project
+path = "C:/Users/gavyn/Documents/Python/HaikuGrammar"

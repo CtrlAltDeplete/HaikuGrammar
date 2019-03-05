@@ -259,7 +259,7 @@ class GrammarModel:
 
 
 if __name__ == '__main__':
-    with open('c:/Users/gavyn/PycharmProjects/HaikuGrammar/data/the_fox_and_the_grapes.model', 'rb') as f:
+    with open(f'{path}/data/the_fox_and_the_grapes.model', 'rb') as f:
         vocabulary = load(f)
     new_vocabulary = {1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
     for key in vocabulary:

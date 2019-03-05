@@ -1,9 +1,11 @@
+import re
+
+from src.constants import path
+from pickle import dump
 from PyQt5.QtWidgets import (
     QApplication, QWidget
 )
 from PyQt5.uic import loadUi
-import re
-from pickle import dump
 
 
 class TaggerWindow(QWidget):
@@ -17,7 +19,6 @@ class TaggerWindow(QWidget):
         self.save_button.clicked.connect(self.save_model)
         self.syllable_count_spin_box.setMinimum(1)
         self.syllable_count_spin_box.setMaximum(7)
-        self.syllable_count_spin_box.setEnabled(False)
 
         self.model = {}
 
@@ -110,6 +111,6 @@ class TaggerWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication([])
-    window = TaggerWindow('c:/Users/gavyn/PycharmProjects/HaikuGrammar/data/the_fox_and_the_grapes.txt')
+    window = TaggerWindow(f'{path}/data/the_fox_and_the_grapes.txt')
     window.show()
     app.exec_()
