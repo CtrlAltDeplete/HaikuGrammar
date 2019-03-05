@@ -1,7 +1,7 @@
 # Constants for Noun Phrases
 NOUN = 'NOUN'
 DETERMINER = 'DETERMINER'
-ADJECTIVE = 'DETERMINER'
+ADJECTIVE = 'ADJECTIVE'
 
 # Constants for Verb Phrases
 VERB = 'VERB'

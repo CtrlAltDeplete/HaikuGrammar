@@ -1,5 +1,7 @@
 from src.constants import *
+from src.Syllables import syllablesInWord
 from random import randint, choice
+from pickle import load
 
 
 class ExhaustedVocabulary(Exception):
@@ -197,7 +199,7 @@ class GrammarModel:
                     phrase.append(x[1])
         return syllables, " ".join(phrase)
 
-    def create_noun_phrase(self, syllables):
+    def create_noun_phrase(self, syllables, require_determiner=False):
         remaining_syllables = syllables
         # Retrieve a noun to use
         syllables_used, word = self.pick_word(1, remaining_syllables, [NOUN])
@@ -208,9 +210,12 @@ class GrammarModel:
         used = [(NOUN, word)]
         # While there is space, round out the noun phrase
         while remaining_syllables != 0:
-            if remaining_syllables < 2 and PREP_PHRASE in options:
+            if remaining_syllables < 3 and PREP_PHRASE in options:
                 options.remove(PREP_PHRASE)
-            addition = choice(options)
+            if require_determiner:
+                addition = DETERMINER
+            else:
+                addition = choice(options)
             if addition is not ADJECTIVE:
                 options.remove(addition)
             # Retrieve our chosen word part
@@ -248,106 +253,20 @@ class GrammarModel:
                 raise ExhaustedVocabulary(
                     "In the creation of a PREPOSITIONAL PHRASE, the GRAMMAR ran out of options."
                 )
-            syllables_used, noun_phrase = self.create_noun_phrase(remaining_syllables)
+            syllables_used, noun_phrase = self.create_noun_phrase(remaining_syllables, True)
             counter += 1
         return syllables, word + " " + noun_phrase
 
 
 if __name__ == '__main__':
-    vocabulary = {
-        (NOUN, SINGULAR): {
-            1: ['life', 'love', 'world', 'day', 'heart', 'plant'],
-            2: ['salmon', 'island', 'student', 'mother', 'water', 'music', 'squirrel'],
-            3: ['chocolate', 'banana', 'piano', 'animal'],
-            4: ['caterpillar', 'ant colony', 'vegetable'],
-            5: [],
-            6: [],
-            7: []
-        },
-        (NOUN, PLURAL): {
-            1: ['days', 'hearts', 'plants', 'fish', 'deer', 'ants'],
-            2: ['pumpkins', 'pictures', 'flowers'],
-            3: ['elephants', 'adventures'],
-            4: ['caterpillars', 'alligators', 'watermelons'],
-            5: [],
-            6: [],
-            7: []
-        },
-        (DETERMINER,): {
-            1: ['the', 'a', 'an', 'this', 'that', 'these', 'those', 'its', 'thier', 'some', 'one', 'ten'],
-            2: ['a few', 'many', 'twenty'],
-            3: ['a little', 'a lot of'],
-            4: [],
-            5: [],
-            6: [],
-            7: []
-        },
-        (ADJECTIVE,): {
-            1: ['rare', 'sweet', 'new', 'soft', 'whole'],
-            2: ['pristine', 'quiet', 'scenic', 'perfect', 'divine', 'simple'],
-            3: ['oppressive', 'astounding', 'unsurpassed', 'romantic', 'singular', 'picturesque', 'glorious'],
-            4: ['incredible', 'overwhelming', 'extravagant'],
-            5: ['unbelievable'],
-            6: [],
-            7: []
-        },
-        (VERB, SINGULAR, PRESENT): {
-            1: ['bolts', 'craves', 'soars', 'lurks', 'flies', 'wails'],
-            2: ['absorbs', 'cowers', 'glistens', 'rises', 'trudges'],
-            3: ['advises', 'untangles'],
-            4: [],
-            5: [],
-            6: [],
-            7: []
-        },
-        (VERB, PLURAL, PRESENT): {
-            1: ['bust', 'climb', 'gleam', 'fight', 'stretch'],
-            2: ['advance', 'attack', 'retreat', 'struggle', 'survey'],
-            3: [],
-            4: [],
-            5: [],
-            6: [],
-            7: []
-        },
-        (ADVERB,): {
-            1: ['fast', 'high'],
-            2: ['brightly', 'calmly', 'queerly', 'quickly', 'coolly', 'gently', 'roughly'],
-            3: ['fervently', 'joyfully', 'intently', 'hungrily', 'solemnly', 'hastily'],
-            4: ['furiously', 'ferociously', 'powerfully', 'quizzically'],
-            5: ['mechanically', 'majestically'],
-            6: [],
-            7: []
-        },
-        (GERUND,): {
-            1: [],
-            2: ['boosting', 'bursting', 'groping', 'fighting'],
-            3: ['shriveling', 'scampering', 'absorbing', 'unveiling'],
-            4: ['enveloping'],
-            5: ['illuminating'],
-            6: [],
-            7: []
-        },
-        (PREPOSITION,): {
-            1: ['at', 'as'],
-            2: ['aboard', 'about', 'above', 'across' 'after', 'against', 'along', 'amid', 'amidst', 'among', 'around',
-                'atop', 'before', 'behind', 'below', 'beneath', 'beside', 'between', 'beyond', 'far from', 'ontop',
-                'outside'],
-            3: ['opposite', 'underneath'],
-            4: [],
-            5: [],
-            6: [],
-            7: []
-        }
-    }
-    new_vocabulary = {}
-    for i in range(1, 8):
-        new_vocabulary[i] = {}
+    with open('c:/Users/gavyn/PycharmProjects/HaikuGrammar/data/the_fox_and_the_grapes.model', 'rb') as f:
+        vocabulary = load(f)
+    new_vocabulary = {1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
     for key in vocabulary:
         for i in range(1, 8):
             new_vocabulary[i][key] = []
-    for key in vocabulary:
-        for i in range(1, 8):
-            new_vocabulary[i][key].extend(vocabulary[key][i])
+        for word in vocabulary[key]:
+            new_vocabulary[syllablesInWord(word)][key].append(word)
 
     grammar = GrammarModel(new_vocabulary)
     print(grammar.create_noun_phrase(5))
