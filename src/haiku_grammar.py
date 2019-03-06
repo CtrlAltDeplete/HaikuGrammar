@@ -176,14 +176,15 @@ class GrammarModel:
         options = [ADVERB, PREP_PHRASE]
         used = [(tags, word)]
         while remaining_syllables > 0:
+            if remaining_syllables <= 3 and PREP_PHRASE in options:
+                options.remove(PREP_PHRASE)
             # addition is the type of word/phrase to add to our verb phrase
-            addition = choice(options)
+            addition = PREP_PHRASE if PREP_PHRASE in options else ADVERB
             if addition is PREP_PHRASE:
                 syllables_used, word = self.create_prep_phrase(remaining_syllables)
                 options.remove(PREP_PHRASE)
             elif addition is ADVERB:
                 syllables_used, word = self.pick_word(1 if remaining_syllables > 2 else 2, max(remaining_syllables - 1, 2), [ADVERB])
-                options.remove(ADVERB)
             if word:
                 used.append((addition, word))
                 remaining_syllables -= syllables_used
@@ -210,9 +211,9 @@ class GrammarModel:
         used = [(NOUN, word)]
         # While there is space, round out the noun phrase
         while remaining_syllables != 0:
-            if remaining_syllables < 3 and PREP_PHRASE in options:
+            if remaining_syllables <= 3 and PREP_PHRASE in options:
                 options.remove(PREP_PHRASE)
-            if require_determiner:
+            if require_determiner and DETERMINER in options:
                 addition = DETERMINER
             else:
                 addition = choice(options)
@@ -246,7 +247,7 @@ class GrammarModel:
         syllables_used, word = self.pick_word(1, remaining_syllables - 1, [PREPOSITION])
         remaining_syllables -= syllables_used
         # Then create a noun phrase for it, with a limit of 50 tries
-        syllables_used, noun_phrase = self.create_noun_phrase(remaining_syllables)
+        syllables_used, noun_phrase = self.create_noun_phrase(remaining_syllables, True)
         counter = 0
         while not noun_phrase:
             if counter == 50:
