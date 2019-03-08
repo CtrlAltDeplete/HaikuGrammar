@@ -55,49 +55,6 @@ class GrammarModel:
                             FIRST_PERSON, SECOND_PERSON, THIRD_PERSON, SINGULAR, PLURAL)
         self.current_global_tags = []
 
-    # @classmethod
-    # def dictionary_from_source(cls, filename):
-    #     with open(filename) as f:
-    #         data = f.read()
-    #     for ch in '",.?!':
-    #         data = data.replace(ch, '')
-    #     data = ' '.join(data.split())
-    #     tokenized = list(set(word_tokenize(data)))
-    #     tagged = pos_tag(tokenized)
-    #     print(tagged)
-    #     vocabulary = {}
-    #     for syl in range(1, 8):
-    #         vocabulary[syl] = {}
-    #     for tagged_word in tagged:
-    #         word, tags = tagged_word
-    #         syllable_count = syllablesInWord(word)
-    #         if tags in ['DT', 'PRP$', 'WDT']:
-    #             tags = (DETERMINER,)
-    #         elif tags in ['IN']:
-    #             tags = (PREPOSITION,)
-    #         elif tags in ['JJ', 'JJR', 'JJS']:
-    #             tags = (ADJECTIVE,)
-    #         elif tags in ['NN', 'NNP']:
-    #             tags = (NOUN, SINGULAR)
-    #         elif tags in ['NNS', 'NNPS']:
-    #             tags = (NOUN, PLURAL)
-    #         elif tags in ['RB', 'RBR', 'RBS']:
-    #             tags = (ADVERB,)
-    #         elif tags in ['VB', 'VBD']:
-    #             tags = (VERB,)
-    #         elif tags in ['VBG']:
-    #             tags = (GERUND,)
-    #         elif tags in ['VBP']:
-    #             tags = (VERB, SINGULAR)
-    #         elif tags in ['VBZ']:
-    #             tags = (VERB, THIRD, SINGULAR)
-    #         else:
-    #             pass
-    #         if tags not in vocabulary[syllable_count]:
-    #             vocabulary[syllable_count][tags] = []
-    #         vocabulary[syllable_count][tags].append(word)
-    #     return cls(vocabulary)
-
     def add_word(self, word: str, syllables: int, tags: list):
         """
         Adds a word with the syllable count and tags passed to the current vocabulary.
@@ -164,8 +121,18 @@ class GrammarModel:
     def clear_tags(self):
         self.current_global_tags = []
 
-    def create_verb_phrase(self, syllables, gerund=False):
+    def create_verb_phrase(self, syllables, gerund=False, function=VERB):
         remaining_syllables = syllables
+        # if function == VERB:
+        #     verb_type = choice([BE, LINKING, INTRANSITIVE, TRANSITIVE])
+        #     if verb_type is BE:
+        #         pass
+        #     elif verb_type is LINKING:
+        #         pass
+        #     elif verb_type is INTRANSITIVE:
+        #         options = [ADVERB, PREP_PHRASE]
+        #     elif verb_type is TRANSITIVE:
+        #         options = [DIRECT_OBJECT, ADVERB]
         if gerund:
             tags = GERUND
         else:
