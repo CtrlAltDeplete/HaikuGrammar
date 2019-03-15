@@ -2,7 +2,7 @@ import re
 
 
 # Read in all our dipthongs, digraphs, prefixes, and suffixes from our rules.txt file.
-with open("c:/Users/gavyn/PycharmProjects/HaikuGrammar/data/rules.txt") as f:
+with open("c:/Users/gavyn/Documents/Python/HaikuGrammar/data/rules.txt") as f:
     rules = f.read().split()
     diphthongs = rules[0].split(',')
     digraphs = rules[1].split(',')

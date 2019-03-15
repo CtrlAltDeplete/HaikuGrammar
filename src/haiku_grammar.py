@@ -121,51 +121,30 @@ class GrammarModel:
     def clear_tags(self):
         self.current_global_tags = []
 
-    def create_verb_phrase(self, syllables, gerund=False, function=VERB):
-        remaining_syllables = syllables
-        # if function == VERB:
-        #     verb_type = choice([BE, LINKING, INTRANSITIVE, TRANSITIVE])
-        #     if verb_type is BE:
-        #         pass
-        #     elif verb_type is LINKING:
-        #         pass
-        #     elif verb_type is INTRANSITIVE:
-        #         options = [ADVERB, PREP_PHRASE]
-        #     elif verb_type is TRANSITIVE:
-        #         options = [DIRECT_OBJECT, ADVERB]
-        if gerund:
-            tags = GERUND
-        else:
-            tags = VERB
-        syllables_used, word = self.pick_word(1, remaining_syllables, [tags])
-        remaining_syllables -= syllables_used
+    def create_verb_phrase(self, min_syllables, max_syllables, gram_function=None):
+        remaining_syllables = max_syllables
+        if gram_function is None:
+            gram_function = choice((BE, LINKING, INTRANSITIVE, TRANSITIVE))
 
-        options = [ADVERB, PREP_PHRASE]
-        used = [(tags, word)]
-        while remaining_syllables > 0:
-            if remaining_syllables <= 3 and PREP_PHRASE in options:
-                options.remove(PREP_PHRASE)
-            # addition is the type of word/phrase to add to our verb phrase
-            addition = PREP_PHRASE if PREP_PHRASE in options else ADVERB
-            if addition is PREP_PHRASE:
-                syllables_used, word = self.create_prep_phrase(remaining_syllables)
-                options.remove(PREP_PHRASE)
-            elif addition is ADVERB:
-                syllables_used, word = self.pick_word(1 if remaining_syllables > 2 else 2, max(remaining_syllables - 1, 2), [ADVERB])
-            if word:
-                used.append((addition, word))
-                remaining_syllables -= syllables_used
-            if not options and remaining_syllables > 0:
-                raise ExhaustedVocabulary(
-                    "In the creation of a VERB PHRASE, the GRAMMAR ran out of options."
-                )
-        phrase = []
-        for pos in choice(([(ADVERB,), (VERB, GERUND), (PREP_PHRASE,)], [(VERB, GERUND), (ADVERB,), (PREP_PHRASE,)],
-                           [(VERB, GERUND), (PREP_PHRASE,), (ADVERB,)])):
-            for x in used:
-                if x[0] in pos:
-                    phrase.append(x[1])
-        return syllables, " ".join(phrase)
+        if gram_function is BE:
+            options = [PREP_PHRASE]
+        elif gram_function is LINKING:
+            options = [SUBJECT_COMPLIMENT]
+        elif gram_function is INTRANSITIVE:
+            options = [ADVERB, PREP_PHRASE]
+        elif gram_function is TRANSITIVE:
+            options = [DIRECT_OBJECT, ADVERB, PREP_PHRASE]
+        elif gram_function is GERUND:
+            options = [DIRECT_OBJECT]
+        elif gram_function is PARTICIPLE:
+            options = []
+
+        syllables_used, word = self.pick_word(1, max_syllables, [gram_function])
+
+    def create_be_verb_phrase(self, min_syllables, max_syllables):
+        remaining_syllables = max_syllables
+        options = [PREP_PHRASE]
+
 
     def create_noun_phrase(self, syllables, require_determiner=False):
         remaining_syllables = syllables
@@ -188,7 +167,7 @@ class GrammarModel:
                 options.remove(addition)
             # Retrieve our chosen word part
             if addition is PREP_PHRASE:
-                syllables_used, word = self.create_prep_phrase(randint(2, remaining_syllables))
+                syllables_used, word = self.create_prep_phrase(randint(3, remaining_syllables))
             else:
                 syllables_used, word = self.pick_word(1, remaining_syllables, [addition])
             # If there was a match, append it to used

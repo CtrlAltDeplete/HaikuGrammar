@@ -1,18 +1,28 @@
 # Constants for Noun Phrases
-# Form
+#   Forms in Noun Phrases
 NOUN = 'NOUN'
 DETERMINER = 'DETERMINER'
 ADJECTIVE = 'ADJECTIVE'
-# Function
+#   Functions of Noun Phrases
 DIRECT_OBJECT = 'DIRECT_OBJECT'
 INDIRECT_OBJECT = 'INDIRECT_OBJECT'
 SUBJECT = 'SUBJECT'
+SUBJECT_COMPLIMENT = 'SUBJECT_COMPLIMENT'
+OBJECT_COMPLIMENT = 'OBJECT_COMPLIMENT'
+OBJECT_OF_PREPOSITION = 'OBJECT_OF_PREPOSITION'
 
 # Constants for Verb Phrases
+# Forms in Verb Phrases
 VERB = 'VERB'
+ADVERB = 'ADVERB'
+PREP_PHRASE = 'PREP_PHRASE'
+# Functions in Verb Phrases
+GERUND = 'GERUND'
+PARTICIPLE = 'PARTICIPLE'
 TRANSITIVE = 'TRANSITIVE'
 INTRANSITIVE = 'INTRANSITIVE'
 LINKING = 'LINKING'
+BE = 'BE'
 
 # Constants for Prepositional Phrases
 PREPOSITION = 'PREPOSITION'
@@ -37,11 +47,6 @@ THIRD_PERSON = 'THIRD_PERSON'
 # Singular/Plural
 SINGULAR = 'SINGULAR'
 PLURAL = 'PLURAL'
-# Verb Types
-BE = 'BE'
-ADVERB = 'ADVERB'
-GERUND = 'GERUND'
-PREP_PHRASE = 'PREP_PHRASE'
 
 # Path to Project
 path = "C:/Users/gavyn/Documents/Python/HaikuGrammar"
