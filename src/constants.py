@@ -3,6 +3,8 @@
 NOUN = 'NOUN'
 DETERMINER = 'DETERMINER'
 ADJECTIVE = 'ADJECTIVE'
+PRONOUN = 'PRONOUN'
+COORDINATING_CONJUNCTION = 'COORDINATING_CONJUNCTION'
 #   Functions of Noun Phrases
 DIRECT_OBJECT = 'DIRECT_OBJECT'
 INDIRECT_OBJECT = 'INDIRECT_OBJECT'
@@ -49,4 +51,5 @@ SINGULAR = 'SINGULAR'
 PLURAL = 'PLURAL'
 
 # Path to Project
-path = "C:/Users/gavyn/Documents/Python/HaikuGrammar"
+# path = "C:/Users/gavyn/PycharmProjects/HaikuGrammar"
+path = "C:/Users/gavyn/PycharmProjects/HaikuGrammar"

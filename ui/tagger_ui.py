@@ -12,7 +12,10 @@ class TaggerWindow(QWidget):
     def __init__(self, source):
         super(TaggerWindow, self).__init__()
         loadUi('tagger.ui', self)
-        self.pos_combo_box.addItems(['Noun', 'Determiner', 'Adjective', 'Verb', 'Adverb', 'Preposition'])
+        self.form_combo_box.addItems(['', 'Noun', 'Determiner', 'Adjective', 'Verb', 'Adverb', 'Preposition', 'Coordinating Conjunction', 'Pronoun'])
+        self.function_combo_box.addItems(['', 'Direct Object', 'Indirect Object', 'Subject', 'Subject Compliment', 'Object Compliment', 'Object of Preposition', 'Gerund', 'Participle', 'Transitive', 'Intransitive', 'Linking', 'Be'])
+        self.person_combo_box.addItems(['', 'First Person', 'Second Person', 'Third Person'])
+        self.plurality_combo_box.addItems(['', 'Singular', 'Plural'])
         self.add_button.clicked.connect(self.add_currently_selected_words_with_tags)
         self.next_button.clicked.connect(self.next_sentence)
         self.previous_button.clicked.connect(self.previous_sentence)
@@ -44,26 +47,29 @@ class TaggerWindow(QWidget):
 
     def add_currently_selected_words_with_tags(self):
         tags = []
-        tags.append(self.pos_combo_box.currentText().upper())
-        for checkbox in [self.first_person_radio, self.gerund_radio, self.plural_radio, self.second_person_radio,
-                         self.singular_radio, self.third_person_radio]:
-            if checkbox.isChecked():
-                tags.append('_'.join(checkbox.text().upper().split()))
-        if {'VERB', 'GERUND'}.issubset(set(tags)):
-            tags.remove('VERB')
-        if {'FIRST_PERSON', 'SECOND_PERSON', 'THIRD_PERSON'}.issubset(set(tags)):
-            tags = list(set(tags) - {'FIRST_PERSON', 'SECOND_PERSON', 'THIRD_PERSON'})
-        if {'SINGULAR', 'PLURAL'}.issubset(set(tags)):
-            tags = list(set(tags) - {'SINGULAR', 'PLURAL'})
+        if self.form_combo_box.currentText():
+            tags.append('_'.join(self.form_combo_box.currentText().upper().split()))
+        if self.function_combo_box.currentText():
+            tags.append('_'.join(self.function_combo_box.currentText().upper().split()))
+        else:
+            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['Direct Object', 'Indirect Object', 'Subject', 'Subject Compliment', 'Object Compliment', 'Object of Preposition', 'Gerund', 'Participle', 'Transitive', 'Intransitive', 'Linking', 'Be']])
+        if self.person_combo_box.currentText():
+            tags.append('_'.join(self.person_combo_box.currentText().upper().split()))
+        else:
+            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['First Person', 'Second Person', 'Third Person']])
+        if self.plurality_combo_box.currentText():
+            tags.append('_'.join(self.plurality_combo_box.currentText().upper().split()))
+        else:
+            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['Singular', 'Plural']])
 
         for key in self.model.keys():
             if set(key) == set(tags):
-                self.model[key].extend(self.get_selected_words())
-                self.dictionary.update(self.get_selected_words())
+                self.model[key].append(self.get_selected_words())
+                self.dictionary.update([self.get_selected_words()])
                 self.update_sentence()
                 return
-        self.model[tuple(tags)] = self.get_selected_words()
-        self.dictionary.update(self.get_selected_words())
+        self.model[tuple(tags)] = [self.get_selected_words()]
+        self.dictionary.update([self.get_selected_words()])
         self.update_sentence()
 
     def next_sentence(self):
@@ -87,7 +93,7 @@ class TaggerWindow(QWidget):
             dump(self.model, f)
 
     def get_selected_words(self):
-        return [self.regex.sub('', word).lower() for word in self.word_to_tag.text().split()]
+        return self.regex.sub('', self.word_to_tag.text()).lower()
 
     def update_sentence(self):
         self.reset_options()
@@ -101,16 +107,16 @@ class TaggerWindow(QWidget):
         self.sentence_label.setText(" ".join(rich_text_sentence))
 
     def reset_options(self):
-        for checkbox in [self.first_person_radio, self.gerund_radio, self.plural_radio, self.second_person_radio,
-                         self.singular_radio, self.third_person_radio]:
-            checkbox.setChecked(False)
-        self.pos_combo_box.setCurrentIndex(0)
+        self.form_combo_box.setCurrentIndex(0)
+        self.function_combo_box.setCurrentIndex(0)
+        self.person_combo_box.setCurrentIndex(0)
+        self.plurality_combo_box.setCurrentIndex(0)
         self.syllable_count_spin_box.setValue(1)
         self.word_to_tag.clear()
 
 
 if __name__ == '__main__':
     app = QApplication([])
-    window = TaggerWindow(f'{path}/data/the_fox_and_the_grapes.txt')
+    window = TaggerWindow(f'{path}/data/cs.txt')
     window.show()
     app.exec_()

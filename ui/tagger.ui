@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>370</height>
+    <width>500</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>452</width>
-     <height>371</height>
+     <width>501</width>
+     <height>451</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -88,12 +88,12 @@
            </size>
           </property>
           <property name="text">
-           <string>Part of Speech:</string>
+           <string>Form</string>
           </property>
          </widget>
         </item>
         <item alignment="Qt::AlignHCenter">
-         <widget class="QComboBox" name="pos_combo_box">
+         <widget class="QComboBox" name="form_combo_box">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -159,7 +159,7 @@
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item alignment="Qt::AlignHCenter">
+        <item>
          <widget class="QLabel" name="label_3">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -167,86 +167,136 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Additional Tags:</string>
+           <string>Function</string>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="singular_radio">
+        <item>
+         <widget class="QComboBox" name="function_combo_box">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string>Singular</string>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="plural_radio">
+        <item>
+         <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Plural</string>
+           <string>Person</string>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="first_person_radio">
+        <item>
+         <widget class="QComboBox" name="person_combo_box">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string>First Person</string>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="second_person_radio">
+        <item>
+         <widget class="QLabel" name="label_6">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Second Person</string>
+           <string>Plurality</string>
           </property>
          </widget>
         </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="third_person_radio">
+        <item>
+         <widget class="QComboBox" name="plurality_combo_box">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string>Third Person</string>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
           </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QCheckBox" name="gerund_radio">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Gerund</string>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -263,7 +313,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Words to Tag:</string>
+       <string>Word/Phrase to tag:</string>
       </property>
      </widget>
     </item>

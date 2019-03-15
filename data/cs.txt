@@ -1,0 +1,35 @@
+We all mark days with clocks and calendars, but perhaps no timepiece is more immediate than a mirror. The changes we notice over the years vividly illustrate science's​ "arrow of time" -- the likely progression from order to disorder. We cannot reverse this arrow any more than we can erase all our wrinkles or restore a shattered teacup to its original form.
+
+Or can we?
+
+An international team of scientists led by the U.S. Department of Energy's (DOE) Argonne National Laboratory explored this question in a first-of-its-kind experiment, managing to return a computer briefly to the past. The results, published March 13 in the journal Scientific Reports, suggest new paths for exploring the backward flow of time in quantum systems. They also open new possibilities for quantum computer program testing and error correction.
+
+To achieve the time reversal, the research team developed an algorithm for IBM's public quantum computer that simulates the scattering of a particle. In classical physics, this might appear as a billiard ball struck by a cue, traveling in a line. But in the quantum world, one scattered particle takes on a fractured quality, spreading in multiple directions. To reverse its quantum evolution is like reversing the rings created when a stone is thrown into a pond.
+
+In nature, restoring this particle back to its original state -- in essence, putting the broken teacup back together -- is impossible.
+
+The main problem is that you would need a ​"supersystem," or external force, to manipulate the particle's quantum waves at every point. But, the researchers note, the timeline required for this supersystem to spontaneously appear and properly manipulate the quantum waves would extend longer than that of the universe itself.
+
+Undeterred, the team set out to determine how this complexity might be overcome, at least in principle. Their algorithm simulated an electron scattering by a two-level quantum system,​ "impersonated" by a quantum computer qubit -- the basic unit of quantum information -- and its related evolution in time. The electron goes from a localized, or​ "seen," state, to a scattered one. Then the algorithm throws the process in reverse, and the particle returns to its initial state -- in other words, it moves back in time, if only by a tiny fraction of a second.
+
+Given that quantum mechanics is governed by probability rather than certainty, the odds for achieving this time-travel feat were pretty good: The algorithm delivered the same result 85 percent of the time in a two-qubit quantum computer.
+
+"We did what was considered impossible before," said Argonne senior scientist Valerii Vinokur, who led the research.
+
+The result deepens our understanding of how the second law of thermodynamics -- that a system will always move from order to entropy and not the other way around -- acts in the quantum world. The researchers demonstrated in previous work that, by teleporting information, a local violation of the second law was possible in a quantum system separated into remote parts that could balance each other out.
+
+"The results also give a nod to the idea that irreversibility results from measurement, highlighting the role that the concept of​ 'measurement' plays in the very foundation of quantum physics," said article coauthor Gordey Lesovik of the Moscow Institute of Physics and Technology.
+
+This is the same notion Austrian physicist Erwin Schrödinger captured with his famous thought experiment, in which a cat sealed in a box might remain both dead and alive until its status is monitored somehow. The researchers suspended their particle in this superposition, or form of quantum limbo, by limiting their measurements.
+
+"This was the essential part of our algorithm," Vinokur said.​ "We measured the state of the system in the very beginning and at the very end, but did not interfere in the middle."
+
+The finding may eventually enable better methods of error correction on quantum computers, where accumulated glitches generate heat and beget new ones. A quantum computer able to effectively jump back and clean up errors as it works could operate far more efficiently.
+
+"At this moment, it's very hard to imagine all the implications this can have," Vinokur said. ​"I am optimistic, and I believe that it will be many."
+
+The study also raises the question: can the researchers now figure out a way to make older folks young again? ​"Maybe," Vinokur jokes,​ "with the proper funding."
+
+The work was done by international team including researchers from the Moscow Institute of Physics and Technology (Gordey Lesovik, Andrey Lebedev, Mikhail Suslov), ETH Zurich (Andrey Lebedev) and Argonne National Laboratory, U.S. (Valerii Vinokur, Ivan Sadovskyy).
+
+Funding for this research was provided by the DOE Office of Science and Strategic Partnership Projects (Swiss National Foundation and the Foundation for the Advancement of Theoretical Physics​ "BASIS").

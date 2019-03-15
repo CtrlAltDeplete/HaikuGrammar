@@ -1,8 +1,9 @@
 import re
+from src.constants import path
 
 
 # Read in all our dipthongs, digraphs, prefixes, and suffixes from our rules.txt file.
-with open("c:/Users/gavyn/Documents/Python/HaikuGrammar/data/rules.txt") as f:
+with open(f"{path}/data/rules.txt") as f:
     rules = f.read().split()
     diphthongs = rules[0].split(',')
     digraphs = rules[1].split(',')
@@ -15,7 +16,7 @@ vowels = "aeiouy"
 
 
 # This function simply returns the number of vowels in a string.
-def countVowels(part):
+def count_vowels(part):
     count = 0
     for ch in part:
         if ch in vowels:
@@ -24,9 +25,9 @@ def countVowels(part):
 
 
 # This function attempts to count the number of syllables in a part.
-def syllablesInPart(part):
+def syllables_in_part(part):
     # Start with a base score of how many vowels are in the part,
-    count = countVowels(part)
+    count = count_vowels(part)
     # Then subtract one for a silent 'e',
     if part[-1] == 'e':
         part = part[:-1]
@@ -37,13 +38,13 @@ def syllablesInPart(part):
     # And subtract one for each dipthong.
     for dip in diphthongs:
         if dip in part:
-            count -= countVowels(dip) - 1
+            count -= count_vowels(dip) - 1
     # Return the count, with a minimum of 0.
     return max(0, count)
 
 
 # This functions attempts to count the number of syllables in a word, and is the function most called.
-def syllablesInWord(word):
+def syllables_in_word(word):
     # Strip all nun alphabetic characters from the word.
     word = word.lower()
     regex = re.compile('[^a-zA-Z]')
@@ -116,37 +117,37 @@ def syllablesInWord(word):
     # If it is even,
     if not odd and len(word) >= 4:
         # And the middle of the word is vowel + consonant + consonant + vowel, excluding digraphs,
-        if countVowels(word[mid - 1:mid + 1]) == 0 and word[mid - 1:mid + 1] not in digraphs and countVowels(word[mid - 2:mid + 2]) == 2:
+        if count_vowels(word[mid - 1:mid + 1]) == 0 and word[mid - 1:mid + 1] not in digraphs and count_vowels(word[mid - 2:mid + 2]) == 2:
             parts.append(word[:mid])
             parts.append(word[mid:])
             word = ''
-        elif countVowels(word[mid - 1:mid + 2]) == 2 and word[mid] in consonants and word[mid - 1] != 'e':
+        elif count_vowels(word[mid - 1:mid + 2]) == 2 and word[mid] in consonants and word[mid - 1] != 'e':
             parts.append(word[:mid])
             parts.append(word[mid:])
             word = ''
     elif odd and len(word) >= 5:
-        if countVowels(word[mid - 1:mid + 1]) == 0 and word[mid - 1:mid + 1] not in digraphs and countVowels(word[mid - 2:mid + 2]) == 2:
+        if count_vowels(word[mid - 1:mid + 1]) == 0 and word[mid - 1:mid + 1] not in digraphs and count_vowels(word[mid - 2:mid + 2]) == 2:
             parts.append(word[:mid])
             parts.append(word[mid:])
             word = ''
-        elif countVowels(word[mid:mid + 3]) == 2 and word[mid + 1] in consonants:
+        elif count_vowels(word[mid:mid + 3]) == 2 and word[mid + 1] in consonants:
             parts.append(word[:mid + 1])
             parts.append(word[mid + 1:])
             word = ''
     if word != '':
         parts.append(word)
     for part in parts:
-        count += syllablesInPart(part)
+        count += syllables_in_part(part)
     return max(count, 1)
 
 
-def syllablesInString(text):
+def syllables_in_string(text):
     count = 0
     for word in text.split():
-        count += syllablesInWord(word)
+        count += syllables_in_word(word)
     return count
 
 
 if __name__ == '__main__':
-    for word in "loud proud".split():
-        print(word, syllablesInWord(word))
+    for word in "all quantum physics".split():
+        print(word, syllables_in_word(word))
