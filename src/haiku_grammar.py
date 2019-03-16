@@ -13,66 +13,15 @@ class UnsuccessfulPhraseGeneration(Exception):
 
 
 class GrammarModel:
-    """
-    A class to hold all the necessary elements of a grammar and vocabulary for generating a Haiku.
-
-    ...
-    Attributes
-    ----------
-    vocabulary : dict
-        A dictionary containing all the possible words used in the model, as well as their appropriate tags
-    global_tags : tuple
-        Tags that COULD be applied to every call to pick_word()
-    current_global_tags : list
-        Tags that SHOULD be applied to every call to pick_word() based on previously used words
-
-    Methods
-    -------
-    add_word(word, syllables, tags)
-        Adds a word to the vocabulary with the appropriate tags and syllables
-    pick_word(min_syllables, max_syllables, tags)
-        Chooses a word at "random" from the vocabulary that matches the tag and syllabic restrictions
-    clear_tags()
-        Resets all the current global tags (used in between clauses/phrases)
-    create_participle_phrase(syllables, gerund=False)
-        Creates a participle phrase with the given number of syllables (if gerund, it is a gerund phrase)
-    create_noun_phrase(syllables)
-        Creates a noun phrase with the given number of syllables
-    create_prepositional_phrase(syllables)
-        Creates a prepositional phrase with the given number of syllables
-    create_clause(syllables)
-        Creates a clause (subject and participle) with the given number of syllables
-    """
-
     def __init__(self, vocabulary: dict=None):
-        """
-        Parameters
-        ----------
-        vocabulary : dict
-            The words used for this grammar model, along with their tags and syllable count
-        """
-
         self.vocabulary = vocabulary
         if vocabulary is None:
             self.vocabulary = {}
         self.global_tags = (PAST, PRESENT, PERFECT, PROGRESSIVE, CONDITIONAL, SUBJUNCTIVE, PASSIVE, ACTIVE,
                             FIRST_PERSON, SECOND_PERSON, THIRD_PERSON, SINGULAR, PLURAL)
-        self.current_global_tags = []
+        self.current_global_tags = {}
 
     def add_word(self, word: str, syllables: int, tags: list):
-        """
-        Adds a word with the syllable count and tags passed to the current vocabulary.
-
-        Parameters
-        ----------
-        word : str
-            The word to be added to the vocabulary (can also be a phrase in special cases)
-        syllables : int
-            How many syllables the word has
-        tags : list
-            The appropriate tags for the syllable
-        """
-
         for key in self.vocabulary[syllables].keys():
             if set(key) == set(tags):
                 if word not in self.vocabulary[syllables][key]:
@@ -81,29 +30,6 @@ class GrammarModel:
         self.vocabulary[syllables][tags] = [word]
 
     def pick_word(self, min_syllables: int, max_syllables: int, tags: list) -> tuple:
-        """
-        Returns a word at random that matches the requirements passed.
-
-        Parameters
-        ----------
-        min_syllables : int
-            The minimum number of syllables needed
-        max_syllables : int
-            The maximum number of syllables needed
-        tags : list
-            The tags required for the word to be returned (can have additional tags)
-
-        Returns
-        -------
-        tuple
-            A tuple with the syllable count and word
-
-        Raises
-        ------
-        ExhaustedVocabulary
-            If there are no words in the vocabulary matching the criteria, this error is raised
-        """
-
         tags.extend(self.current_global_tags)
 
         options = []
@@ -117,6 +43,10 @@ class GrammarModel:
             for tag in c[1]:
                 if tag in self.global_tags and tag not in self.current_global_tags:
                     self.current_global_tags.append(tag)
+            if SINGULAR in c[1] and PLURAL not in c[1] and PLURAL in self.current_global_tags:
+                self.current_global_tags.remove(PLURAL)
+            elif PLURAL in c[1] and SINGULAR not in c[1] and SINGULAR in self.current_global_tags:
+                self.current_global_tags.remove(SINGULAR)
             return c[0], c[2]
         raise ExhaustedVocabulary(
             f"No words found between {min_syllables} and {max_syllables} syllables with tags {tags}."
@@ -172,19 +102,22 @@ class GrammarModel:
                     break
                 current_min_syllables = 1 if len(remaining_choices) > 1 else min_syllables - syllables_used
                 current_max_syllables = max_syllables - syllables_used
-                word_form_to_pick = choice(list(remaining_choices))
-                if word_form_to_pick is VERB:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, VERB])
-                elif word_form_to_pick is PREP_PHRASE:
-                    syllables, word = self.create_prep_phrase(3, current_max_syllables)
-                elif word_form_to_pick is SUBJECT_COMPLIMENT:
-                    syllables, word = self.create_subject_compliment(current_min_syllables, current_max_syllables)
-                elif word_form_to_pick is ADVERB:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADVERB, gram_function])
-                elif word_form_to_pick is DIRECT_OBJECT:
-                    syllables, word = self.create_direct_object(current_min_syllables, current_max_syllables)
-                else:
-                    raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
+                word_form_to_pick = choice(remaining_choices)
+                try:
+                    if word_form_to_pick is VERB:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, VERB])
+                    elif word_form_to_pick is PREP_PHRASE:
+                        syllables, word = self.create_prep_phrase(3, current_max_syllables)
+                    elif word_form_to_pick is SUBJECT_COMPLIMENT:
+                        syllables, word = self.create_subject_compliment(current_min_syllables, current_max_syllables)
+                    elif word_form_to_pick is ADVERB:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADVERB, gram_function])
+                    elif word_form_to_pick is DIRECT_OBJECT:
+                        syllables, word = self.create_direct_object(current_min_syllables, current_max_syllables)
+                    else:
+                        raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
+                except ExhaustedVocabulary:
+                    break
                 options_used.append(word_form_to_pick)
                 words_used.append(word)
                 syllables_used += syllables
@@ -259,22 +192,25 @@ class GrammarModel:
                 current_min_syllables = 1 if len(remaining_choices) > 1 else max(1, min_syllables - syllables_used)
                 current_max_syllables = max_syllables - syllables_used
                 word_form_to_pick = choice(list(remaining_choices)) if PREP_PHRASE not in remaining_choices else PREP_PHRASE
-                if word_form_to_pick in [NOUN, PRONOUN, GERUND]:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, word_form_to_pick])
-                elif word_form_to_pick is ADJECTIVE:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADJECTIVE, gram_function])
-                elif word_form_to_pick is DETERMINER:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [DETERMINER, gram_function])
-                elif word_form_to_pick is PREP_PHRASE:
-                    syllables, word = self.create_prep_phrase(current_min_syllables, current_max_syllables)
-                elif word_form_to_pick is gram_function:
-                    syllables, word = self.create_noun_phrase(current_min_syllables, current_max_syllables, gram_function)
-                elif word_form_to_pick is COORDINATING_CONJUNCTION:
-                    syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [COORDINATING_CONJUNCTION, gram_function])
-                elif word_form_to_pick is DIRECT_OBJECT:
-                    syllables, word = self.create_direct_object(current_min_syllables, current_max_syllables)
-                else:
-                    raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
+                try:
+                    if word_form_to_pick in [NOUN, PRONOUN, GERUND]:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, word_form_to_pick])
+                    elif word_form_to_pick is ADJECTIVE:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADJECTIVE, gram_function])
+                    elif word_form_to_pick is DETERMINER:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [DETERMINER, gram_function])
+                    elif word_form_to_pick is PREP_PHRASE:
+                        syllables, word = self.create_prep_phrase(current_min_syllables, current_max_syllables)
+                    elif word_form_to_pick is gram_function:
+                        syllables, word = self.create_noun_phrase(current_min_syllables, current_max_syllables, gram_function)
+                    elif word_form_to_pick is COORDINATING_CONJUNCTION:
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [COORDINATING_CONJUNCTION, gram_function])
+                    elif word_form_to_pick is DIRECT_OBJECT:
+                        syllables, word = self.create_direct_object(current_min_syllables, current_max_syllables)
+                    else:
+                        raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
+                except ExhaustedVocabulary:
+                    break
                 options_used.append(word_form_to_pick)
                 words_used.append(word)
                 syllables_used += syllables

@@ -52,4 +52,4 @@ PLURAL = 'PLURAL'
 
 # Path to Project
 # path = "C:/Users/gavyn/PycharmProjects/HaikuGrammar"
-path = "C:/Users/gavyn/PycharmProjects/HaikuGrammar"
+path = "C:/Users/gavyn/Documents/Python/HaikuGrammar"

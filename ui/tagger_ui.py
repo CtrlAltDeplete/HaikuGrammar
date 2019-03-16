@@ -14,8 +14,6 @@ class TaggerWindow(QWidget):
         loadUi('tagger.ui', self)
         self.form_combo_box.addItems(['', 'Noun', 'Determiner', 'Adjective', 'Verb', 'Adverb', 'Preposition', 'Coordinating Conjunction', 'Pronoun'])
         self.function_combo_box.addItems(['', 'Direct Object', 'Indirect Object', 'Subject', 'Subject Compliment', 'Object Compliment', 'Object of Preposition', 'Gerund', 'Participle', 'Transitive', 'Intransitive', 'Linking', 'Be'])
-        self.person_combo_box.addItems(['', 'First Person', 'Second Person', 'Third Person'])
-        self.plurality_combo_box.addItems(['', 'Singular', 'Plural'])
         self.add_button.clicked.connect(self.add_currently_selected_words_with_tags)
         self.next_button.clicked.connect(self.next_sentence)
         self.previous_button.clicked.connect(self.previous_sentence)
