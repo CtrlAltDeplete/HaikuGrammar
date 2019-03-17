@@ -421,7 +421,7 @@
     <string>Add Tags</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="save_button_2">
+  <widget class="QPushButton" name="next_button">
    <property name="geometry">
     <rect>
      <x>420</x>

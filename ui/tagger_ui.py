@@ -49,16 +49,10 @@ class TaggerWindow(QWidget):
             tags.append('_'.join(self.form_combo_box.currentText().upper().split()))
         if self.function_combo_box.currentText():
             tags.append('_'.join(self.function_combo_box.currentText().upper().split()))
-        else:
-            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['Direct Object', 'Indirect Object', 'Subject', 'Subject Compliment', 'Object Compliment', 'Object of Preposition', 'Gerund', 'Participle', 'Transitive', 'Intransitive', 'Linking', 'Be']])
-        if self.person_combo_box.currentText():
-            tags.append('_'.join(self.person_combo_box.currentText().upper().split()))
-        else:
-            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['First Person', 'Second Person', 'Third Person']])
-        if self.plurality_combo_box.currentText():
-            tags.append('_'.join(self.plurality_combo_box.currentText().upper().split()))
-        else:
-            tags.extend(['_'.join(possible_tag.upper().split()) for possible_tag in ['Singular', 'Plural']])
+
+        radios = (self.first_singular_radio, self.first_plural_radio,
+                  self.second_singular_radio, self.second_plural_radio,
+                  self.third)
 
         for key in self.model.keys():
             if set(key) == set(tags):
