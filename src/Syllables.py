@@ -149,5 +149,5 @@ def syllables_in_string(text):
 
 
 if __name__ == '__main__':
-    for word in "all quantum physics".split():
+    for word in "timeline".split():
         print(word, syllables_in_word(word))

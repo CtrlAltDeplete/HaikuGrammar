@@ -18,8 +18,6 @@ class TaggerWindow(QWidget):
         self.next_button.clicked.connect(self.next_sentence)
         self.previous_button.clicked.connect(self.previous_sentence)
         self.save_button.clicked.connect(self.save_model)
-        self.syllable_count_spin_box.setMinimum(1)
-        self.syllable_count_spin_box.setMaximum(7)
 
         self.model = {}
 
@@ -52,7 +50,14 @@ class TaggerWindow(QWidget):
 
         radios = (self.first_singular_radio, self.first_plural_radio,
                   self.second_singular_radio, self.second_plural_radio,
-                  self.third)
+                  self.third_singular_radio, self.third_plural_radio)
+        radio_tags = (('FIRST_PERSON', 'SINGULAR'), ('FIRST_PERSON', 'PLURAL'),
+                      ('SECOND_PERSON', 'SINGULAR'), ('SECOND_PERSON', 'PLURAL'),
+                      ('THIRD_PERSON', 'SINGULAR'), ('THIRD_PERSON', 'PLURAL'))
+
+        for i, radio in enumerate(radios):
+            if radio.isChecked():
+                tags.extend(radio_tags[i])
 
         for key in self.model.keys():
             if set(key) == set(tags):
@@ -85,10 +90,11 @@ class TaggerWindow(QWidget):
             dump(self.model, f)
 
     def get_selected_words(self):
-        return self.regex.sub('', self.word_to_tag.text()).lower()
+        return self.regex.sub('', self.word_to_tag.toPlainText()).lower()
 
     def update_sentence(self):
         self.reset_options()
+        self.progress_label.setText(f"{self.sentence_index + 1} / {len(self.sentences)}")
         plain_text_sentence = self.sentences[self.sentence_index].split()
         rich_text_sentence = []
         for word in plain_text_sentence:
@@ -101,10 +107,14 @@ class TaggerWindow(QWidget):
     def reset_options(self):
         self.form_combo_box.setCurrentIndex(0)
         self.function_combo_box.setCurrentIndex(0)
-        self.person_combo_box.setCurrentIndex(0)
-        self.plurality_combo_box.setCurrentIndex(0)
-        self.syllable_count_spin_box.setValue(1)
         self.word_to_tag.clear()
+
+        radios = (self.first_singular_radio, self.first_plural_radio,
+                  self.second_singular_radio, self.second_plural_radio,
+                  self.third_singular_radio, self.third_plural_radio)
+
+        for radio in radios:
+            radio.setChecked(False)
 
 
 if __name__ == '__main__':

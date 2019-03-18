@@ -33,6 +33,9 @@
    <property name="alignment">
     <set>Qt::AlignCenter</set>
    </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QLabel" name="form_label">
    <property name="geometry">
@@ -190,7 +193,7 @@
     <string>3rd</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="first_singular_radio">
+  <widget class="QCheckBox" name="first_singular_radio">
    <property name="geometry">
     <rect>
      <x>390</x>
@@ -214,7 +217,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QRadioButton" name="second_singul_radio">
+  <widget class="QCheckBox" name="second_singular_radio">
    <property name="geometry">
     <rect>
      <x>390</x>
@@ -238,7 +241,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QRadioButton" name="third_singular_radio">
+  <widget class="QCheckBox" name="third_singular_radio">
    <property name="geometry">
     <rect>
      <x>390</x>
@@ -262,7 +265,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QRadioButton" name="third_plural_radio">
+  <widget class="QCheckBox" name="third_plural_radio">
    <property name="geometry">
     <rect>
      <x>480</x>
@@ -286,7 +289,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QRadioButton" name="second_plural_radio">
+  <widget class="QCheckBox" name="second_plural_radio">
    <property name="geometry">
     <rect>
      <x>480</x>
@@ -310,7 +313,7 @@
     </size>
    </property>
   </widget>
-  <widget class="QRadioButton" name="first_plural_radio">
+  <widget class="QCheckBox" name="first_plural_radio">
    <property name="geometry">
     <rect>
      <x>480</x>
@@ -437,6 +440,19 @@
    </property>
    <property name="text">
     <string>Next</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="progress_label">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

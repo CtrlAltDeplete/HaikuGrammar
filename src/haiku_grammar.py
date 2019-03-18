@@ -19,7 +19,7 @@ class GrammarModel:
             self.vocabulary = {}
         self.global_tags = (PAST, PRESENT, PERFECT, PROGRESSIVE, CONDITIONAL, SUBJUNCTIVE, PASSIVE, ACTIVE,
                             FIRST_PERSON, SECOND_PERSON, THIRD_PERSON, SINGULAR, PLURAL)
-        self.current_global_tags = {}
+        self.current_global_tags = []
 
     def add_word(self, word: str, syllables: int, tags: list):
         for key in self.vocabulary[syllables].keys():
@@ -101,7 +101,7 @@ class GrammarModel:
                 if not remaining_choices:
                     break
                 current_min_syllables = 1 if len(remaining_choices) > 1 else min_syllables - syllables_used
-                current_max_syllables = max_syllables - syllables_used
+                current_max_syllables = max_syllables - syllables_used - len(chosen_structure) + len(options_used) + 1
                 word_form_to_pick = choice(remaining_choices)
                 try:
                     if word_form_to_pick is VERB:
@@ -218,7 +218,7 @@ class GrammarModel:
 
             tries += 1
 
-            if max_syllables < syllables_used or min_syllables > syllables_used or len(options_used) != len(chosen_structure):
+            if not (min_syllables <= syllables_used <= max_syllables) or len(options_used) != len(chosen_structure):
                 break
 
             noun_phrase = []
@@ -264,8 +264,8 @@ if __name__ == '__main__':
     tries = 0
     while tries < 20:
         try:
-            noun_phrase = grammar.create_noun_phrase(5, 5, SUBJECT)[1]
-            print(noun_phrase)
+            noun_phrase = grammar.create_noun_phrase(5, 5)
+            print(noun_phrase[0], noun_phrase[1])
             break
         except UnsuccessfulPhraseGeneration:
             tries += 1
@@ -274,8 +274,8 @@ if __name__ == '__main__':
     tries = 0
     while tries < 20:
         try:
-            verb_phrase = grammar.create_verb_phrase(7, 7)[1]
-            print(verb_phrase)
+            verb_phrase = grammar.create_verb_phrase(7, 7)
+            print(verb_phrase[0], verb_phrase[1])
             break
         except UnsuccessfulPhraseGeneration:
             tries += 1
@@ -284,8 +284,8 @@ if __name__ == '__main__':
     tries = 0
     while tries < 20:
         try:
-            prep_phrase = grammar.create_prep_phrase(5, 5)[1]
-            print(prep_phrase)
+            prep_phrase = grammar.create_prep_phrase(5, 5)
+            print(prep_phrase[0], prep_phrase[1])
             break
         except UnsuccessfulPhraseGeneration:
             tries += 1
