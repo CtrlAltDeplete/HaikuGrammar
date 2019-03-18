@@ -119,6 +119,6 @@ class TaggerWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication([])
-    window = TaggerWindow(f'{path}/data/cs.txt')
+    window = TaggerWindow(f'{path}/data/the_fox_and_the_grapes.txt')
     window.show()
     app.exec_()

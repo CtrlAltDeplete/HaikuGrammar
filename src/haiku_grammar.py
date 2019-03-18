@@ -29,7 +29,7 @@ class GrammarModel:
                 return
         self.vocabulary[syllables][tags] = [word]
 
-    def pick_word(self, min_syllables: int, max_syllables: int, tags: list) -> tuple:
+    def pick_word(self, min_syllables: int, max_syllables: int, tags: list, update_global_tags=False) -> tuple:
         tags.extend(self.current_global_tags)
 
         options = []
@@ -41,26 +41,23 @@ class GrammarModel:
         if options:
             c = choice(options)
             for tag in c[1]:
-                if tag in self.global_tags and tag not in self.current_global_tags:
+                if tag in self.global_tags and tag not in self.current_global_tags and update_global_tags:
                     self.current_global_tags.append(tag)
-            if SINGULAR in c[1] and PLURAL not in c[1] and PLURAL in self.current_global_tags:
-                self.current_global_tags.remove(PLURAL)
-            elif PLURAL in c[1] and SINGULAR not in c[1] and SINGULAR in self.current_global_tags:
-                self.current_global_tags.remove(SINGULAR)
             return c[0], c[2]
         raise ExhaustedVocabulary(
             f"No words found between {min_syllables} and {max_syllables} syllables with tags {tags}."
         )
 
     def create_verb_phrase(self, min_syllables, max_syllables, gram_function=None, max_tries=20):
+        starting_global_tags = self.current_global_tags.copy()
         all_structure_options = {
             BE: ((4, VERB, PREP_PHRASE), (2, VERB, SUBJECT_COMPLIMENT)),
             LINKING: ((2, VERB, SUBJECT_COMPLIMENT),),
             INTRANSITIVE: ((5, ADVERB, VERB, PREP_PHRASE), (5, VERB, ADVERB, PREP_PHRASE),
                            (5, VERB, PREP_PHRASE, ADVERB), (4, VERB, PREP_PHRASE), (2, VERB, ADVERB), (1, VERB)),
-            TRANSITIVE: ((3, ADVERB, VERB, DIRECT_OBJECT), (3, VERB, DIRECT_OBJECT, ADVERB),
-                         (5, VERB, DIRECT_OBJECT, PREP_PHRASE), (6, ADVERB, VERB, DIRECT_OBJECT, PREP_PHRASE),
-                         (6, VERB, DIRECT_OBJECT, PREP_PHRASE, ADVERB)),
+            TRANSITIVE: ((4, ADVERB, VERB, DIRECT_OBJECT), (4, VERB, DIRECT_OBJECT, ADVERB),
+                         (6, VERB, DIRECT_OBJECT, PREP_PHRASE), (7, ADVERB, VERB, DIRECT_OBJECT, PREP_PHRASE),
+                         (7, VERB, DIRECT_OBJECT, PREP_PHRASE, ADVERB)),
             GERUND: ((2, VERB, DIRECT_OBJECT), (3, VERB, DIRECT_OBJECT, ADVERB)),
             PARTICIPLE: ((1, VERB),)
         }
@@ -78,29 +75,34 @@ class GrammarModel:
         tries = 0
 
         while tries < max_tries:
+            self.current_global_tags = starting_global_tags.copy()
             options_used = []
             words_used = []
             syllables_used = 0
             remaining_choices = list(chosen_structure)
 
             while True:
-                if max_syllables <= syllables_used:
-                    break
-                if not remaining_choices:
+                if max_syllables <= syllables_used or not remaining_choices:
                     break
                 current_min_syllables = 1 if len(remaining_choices) > 1 else min_syllables - syllables_used
                 current_max_syllables = max_syllables - syllables_used - len(chosen_structure) + len(options_used) + 1
+                if PREP_PHRASE in chosen_structure and PREP_PHRASE not in options_used:
+                    current_max_syllables -= 2
+                if DIRECT_OBJECT in chosen_structure and DIRECT_OBJECT not in options_used:
+                    current_max_syllables -= 1
                 word_form_to_pick = choice(remaining_choices)
                 try:
                     if word_form_to_pick is VERB:
                         syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, VERB] if gram_function else [VERB])
                     elif word_form_to_pick is PREP_PHRASE:
+                        current_max_syllables = max(current_max_syllables, 3)
                         syllables, word = self.create_prep_phrase(3, current_max_syllables)
                     elif word_form_to_pick is SUBJECT_COMPLIMENT:
                         syllables, word = self.create_subject_compliment(current_min_syllables, current_max_syllables)
                     elif word_form_to_pick is ADVERB:
                         syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADVERB, gram_function])
                     elif word_form_to_pick is DIRECT_OBJECT:
+                        current_max_syllables = max(current_max_syllables, 2)
                         syllables, word = self.create_direct_object(current_min_syllables, current_max_syllables)
                     else:
                         raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
@@ -114,7 +116,7 @@ class GrammarModel:
 
             tries += 1
 
-            if min_syllables > syllables_used or max_syllables < syllables_used:
+            if not (min_syllables <= syllables_used <= max_syllables) or len(options_used) != len(chosen_structure):
                 break
 
             verb_phrase = []
@@ -124,6 +126,7 @@ class GrammarModel:
                         verb_phrase.append(words_used.pop(i))
                         options_used.pop(i)
                         break
+
             return syllables_used, ' '.join(verb_phrase)
 
         raise UnsuccessfulPhraseGeneration(f"Unsuccessfully met word count for verb phrase.")
@@ -143,9 +146,9 @@ class GrammarModel:
         return self.create_noun_phrase(min_syllables, max_syllables, DIRECT_OBJECT)
 
     def create_noun_phrase(self, min_syllables, max_syllables, gram_function=None, max_tries=20):
-        if gram_function is None:
-            gram_function = choice([SUBJECT, SUBJECT_COMPLIMENT, OBJECT_COMPLIMENT, DIRECT_OBJECT, OBJECT_OF_PREPOSITION])
-
+        # Store what the global tags were before generation.
+        starting_global_tags = self.current_global_tags.copy()
+        # All possible structure options for noun phrases and their minimum syllable count.
         structure_options = ((1, NOUN),
                              (2, ADJECTIVE, NOUN),
                              (2, DETERMINER, NOUN),
@@ -160,38 +163,50 @@ class GrammarModel:
                              (1, PRONOUN),
                              (3, GERUND, DIRECT_OBJECT))
 
-        if gram_function is OBJECT_OF_PREPOSITION:
+        # If the function of this noun phrase is the object of a preposition, we need a determiner in our structure.
+        if gram_function in [DIRECT_OBJECT, OBJECT_OF_PREPOSITION]:
             structure_options = (opt for opt in structure_options if DETERMINER in opt)
 
+        # Choose a structure out of all the options, as long as the minimum required syllable count for that structure
+        # is less than or equal to the noun phrase's maximum syllable count.
         chosen_structure = choice([opt[1:] for opt in structure_options if opt[0] <= max_syllables])
-
-        if gram_function is SUBJECT:
-            self.global_tags = []
 
         tries = 0
 
         while tries < max_tries:
+            # Reset all values at the beginning of an attempt.
+            self.current_global_tags = starting_global_tags.copy()
             options_used = []
             words_used = []
             syllables_used = 0
             remaining_choices = list(chosen_structure)
 
             while True:
+                # If we ran out of choices or have reached our max syllable count, break out.
                 if not remaining_choices or syllables_used >= max_syllables:
                     break
+                # Otherwise, set the minimum syllable count for the current strucrural component to 1 if their are more
+                # structural components. If there aren't any more components, set it to the number of syllables required
+                # to meet the minimum syllable amount of the phrase.
                 current_min_syllables = 1 if len(remaining_choices) > 1 else max(1, min_syllables - syllables_used)
+                # Set the max syllable count to the max syllables - used syllables - 1 for each remaining component.
                 current_max_syllables = max_syllables - syllables_used - len(chosen_structure) + len(options_used) + 1
+                # If we still need to make a prepositional phrase, lower the max syllables by two more, because prep
+                # phrases require at least 3 syllables.
                 if PREP_PHRASE in chosen_structure and PREP_PHRASE not in options_used:
                     current_max_syllables -= 2
-                word_form_to_pick = choice(list(remaining_choices)) if PREP_PHRASE not in remaining_choices else PREP_PHRASE
+                # Randomly choose what component we are generating.
+                word_form_to_pick = choice(list(remaining_choices))
                 try:
+                    # Based on the structure, call the appropriate method.
                     if word_form_to_pick in [NOUN, PRONOUN, GERUND]:
-                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, word_form_to_pick])
+                        syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [gram_function, word_form_to_pick], update_global_tags=gram_function is SUBJECT)
                     elif word_form_to_pick is ADJECTIVE:
                         syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [ADJECTIVE, gram_function])
                     elif word_form_to_pick is DETERMINER:
                         syllables, word = self.pick_word(current_min_syllables, current_max_syllables, [DETERMINER, gram_function])
                     elif word_form_to_pick is PREP_PHRASE:
+                        current_max_syllables = max(current_max_syllables, 3)
                         syllables, word = self.create_prep_phrase(current_min_syllables, current_max_syllables)
                     elif word_form_to_pick is gram_function:
                         syllables, word = self.create_noun_phrase(current_min_syllables, current_max_syllables, gram_function)
@@ -203,7 +218,9 @@ class GrammarModel:
                         raise UnsuccessfulPhraseGeneration(f"Unknown word form for verbs: {word_form_to_pick}")
                 except ExhaustedVocabulary:
                     break
+                # If that word isn't already used in this phrase,
                 if word not in words_used:
+                    # Update all the values appropriately.
                     options_used.append(word_form_to_pick)
                     words_used.append(word)
                     syllables_used += syllables
@@ -211,16 +228,22 @@ class GrammarModel:
 
             tries += 1
 
+            # Check if all the phrase's requirements are met.
             if not (min_syllables <= syllables_used <= max_syllables) or len(options_used) != len(chosen_structure):
                 break
 
+            # If they are, compose our noun phrase.
             noun_phrase = []
+            # Iterate through all components of the chosen structure and
             for word_form in chosen_structure:
+                # All of our used options/words.
                 for i, tag in enumerate(options_used):
                     if tag == word_form:
+                        # Append the word that matches the current component from the chosen structure.
                         noun_phrase.append(words_used.pop(i))
                         options_used.pop(i)
                         break
+            # Then return the noun phrase, joined by spaces.
             return syllables_used, ' '.join(noun_phrase)
 
         raise UnsuccessfulPhraseGeneration(f"Unsuccessfully met word count for verb phrase.")
@@ -310,23 +333,18 @@ class GrammarModel:
         raise UnsuccessfulPhraseGeneration(f"Maximum tries reached for haiku creation.")
 
 
-if __name__ == '__main__':
-    with open(f'{path}/data/new_cs.model', 'rb') as f:
-        vocabulary = load(f)
-    # new_vocabulary = {1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}}
-    # for key in vocabulary:
-    #     for i in range(1, 8):
-    #         new_vocabulary[i][key] = []
-    #     for word in vocabulary[key]:
-    #         if word != 'more':
-    #             new_vocabulary[syllables_in_word(word)][key].append(word)
-    #
-    # with open(f'{path}/data/new_cs.model', 'wb') as f:
-    #     dump(new_vocabulary, f)
-
-    grammar = GrammarModel(vocabulary)
-
+def demo(grammar):
     print(grammar.create_haiku((
         lambda: grammar.create_noun_phrase(5, 5, SUBJECT),
         lambda: grammar.create_verb_phrase(7, 7, TRANSITIVE),
         lambda: grammar.create_prep_phrase(5, 5))))
+
+
+if __name__ == '__main__':
+    # with open(f'{path}/data/the_fox_and_the_grapes.model', 'rb') as f:
+    with open(f'{path}/data/cs.model', 'rb') as f:
+        vocabulary = load(f)
+
+    grammar = GrammarModel(vocabulary)
+
+    demo(grammar)
