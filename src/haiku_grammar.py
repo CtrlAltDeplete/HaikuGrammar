@@ -145,7 +145,7 @@ class GrammarModel:
     def create_direct_object(self, min_syllables, max_syllables):
         return self.create_noun_phrase(min_syllables, max_syllables, DIRECT_OBJECT)
 
-    def create_noun_phrase(self, min_syllables, max_syllables, gram_function=None, max_tries=20):
+    def create_noun_phrase(self, min_syllables, max_syllables, gram_function=None, max_tries=20, chosen_structure=None):
         # Store what the global tags were before generation.
         starting_global_tags = self.current_global_tags.copy()
         # All possible structure options for noun phrases and their minimum syllable count.
@@ -163,13 +163,17 @@ class GrammarModel:
                              (1, PRONOUN),
                              (3, GERUND, DIRECT_OBJECT))
 
+        if gram_function is None:
+            gram_function = NOUN
+
         # If the function of this noun phrase is the object of a preposition, we need a determiner in our structure.
         if gram_function in [DIRECT_OBJECT, OBJECT_OF_PREPOSITION]:
             structure_options = (opt for opt in structure_options if DETERMINER in opt)
 
         # Choose a structure out of all the options, as long as the minimum required syllable count for that structure
         # is less than or equal to the noun phrase's maximum syllable count.
-        chosen_structure = choice([opt[1:] for opt in structure_options if opt[0] <= max_syllables])
+        if chosen_structure is None:
+            chosen_structure = choice([opt[1:] for opt in structure_options if opt[0] <= max_syllables])
 
         tries = 0
 
@@ -333,18 +337,25 @@ class GrammarModel:
         raise UnsuccessfulPhraseGeneration(f"Maximum tries reached for haiku creation.")
 
 
-def demo(grammar):
+def demo_1(grammar):
+    with open(f'{path}/data/cs.model', 'rb') as f:
+        vocabulary = load(f)
+    grammar = GrammarModel(vocabulary)
+
     print(grammar.create_haiku((
-        lambda: grammar.create_noun_phrase(5, 5, SUBJECT),
-        lambda: grammar.create_verb_phrase(7, 7, TRANSITIVE),
-        lambda: grammar.create_prep_phrase(5, 5))))
+        lambda: grammar.create_prep_phrase(5, 5),
+        lambda: grammar.create_noun_phrase(7, 7, SUBJECT),
+        lambda: grammar.create_verb_phrase(5, 5))))
+
+
+def demo_2():
+    with open(f'{path}/data/the_fox_and_the_grapes.model', 'rb') as f:
+        vocabulary = load(f)
+    grammar = GrammarModel(vocabulary)
+
+    print(grammar.create_noun_phrase(3, 3, chosen_structure=(DETERMINER, ADJECTIVE, NOUN)))
 
 
 if __name__ == '__main__':
-    # with open(f'{path}/data/the_fox_and_the_grapes.model', 'rb') as f:
-    with open(f'{path}/data/cs.model', 'rb') as f:
-        vocabulary = load(f)
-
-    grammar = GrammarModel(vocabulary)
-
-    demo(grammar)
+    demo_1()
+    # demo_2()
